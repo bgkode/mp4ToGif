@@ -1,7 +1,7 @@
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
-from moviepy.editor import VideoFileClip
+from moviepy import VideoFileClip
 import numpy as np
 from PIL import Image
 import threading
@@ -19,9 +19,9 @@ def convert_mp4_to_gif(input_path, output_path, start_time=0, duration=None, fps
         
         # Apply subclip
         if duration:
-            video = video.subclip(start_time, start_time + duration)
+            video = video.subclipped(start_time, start_time + duration)
         else:
-            video = video.subclip(start_time)
+            video = video.subclipped(start_time)
         
         # Calculate new dimensions once
         new_width = int(video.w * scale)
@@ -29,14 +29,13 @@ def convert_mp4_to_gif(input_path, output_path, start_time=0, duration=None, fps
         
         # Create resize function with fixed dimensions
         resize_func = partial(resize_image, newsize=(new_width, new_height))
-        resized_video = video.fl_image(resize_func)
+        resized_video = video.image_transform(resize_func)
         
-        # Set optimal gif parameters
+        # Write gif
         resized_video.write_gif(
             output_path,
             fps=fps,
-            opt='wu',  # Use Wu quantization for better quality/size ratio
-            program='ffmpeg',
+            loop=0,
             logger=None  # Disable logger for better performance
         )
         
